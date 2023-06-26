@@ -1,18 +1,60 @@
+///////////////////////////////////////////////////////////////////////////////
+/*                                                                           */
+/*                        Robot Arm Teensy Software                          */
+/*                               v0.1                                        */
+///////////////////////////////////////////////////////////////////////////////
+/*
+
+-Nicodemus Phaklides
+
+Description: Controller for Scorbot ER-V robot arm using a Teensy 4.1 as an SPI subscriber
+
+
+
+Changelog 
+
+v0.1:
+- Initial release
+
+*/
+///////////////////////////////////////////////////////////////////////////////
+/*                                                                           */
+/*                              INCLUDES                                     */
+/*                                                                           */
+///////////////////////////////////////////////////////////////////////////////
 #include <Arduino.h>
+#include <Servo.h>                             
 
-// put function declarations here:
-int myFunction(int, int);
 
+#include "arm.h" //Includes pinout definitions, basic commands
+
+///////////////////////////////////////////////////////////////////////////////
+/*                                                                           */
+/*                              GLOBALS                                      */
+/*                                                                           */
+///////////////////////////////////////////////////////////////////////////////
+
+Arm robotArm;
+
+
+///////////////////////////////////////////////////////////////////////////////
+/*                                                                           */
+/*                              SETUP                                        */
+/*                                                                           */
+///////////////////////////////////////////////////////////////////////////////
 void setup() {
-  // put your setup code here, to run once:
-  int result = myFunction(2, 3);
+
+  robotArm.init();
 }
 
+
+///////////////////////////////////////////////////////////////////////////////
+/*                                                                           */
+/*                              LOOP                                         */
+/*                                                                           */
+///////////////////////////////////////////////////////////////////////////////
 void loop() {
-  // put your main code here, to run repeatedly:
+
+
 }
 
-// put function definitions here:
-int myFunction(int x, int y) {
-  return x + y;
-}
