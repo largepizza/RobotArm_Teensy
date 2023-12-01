@@ -12,6 +12,7 @@
 #include <Arduino.h>
 #include <Servo.h>
 #include <Encoder.h>
+#include "datatypes.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 /*                                                                           */
@@ -62,34 +63,59 @@
 #define PIN_AXIS_3_DIR 40
 #define PIN_TEMP 41
 
-
-class Arm {
-    public:
-        Encoder axis1Enc{PIN_AXIS_1_A, PIN_AXIS_1_B};
-        Encoder axis2Enc{PIN_AXIS_2_A, PIN_AXIS_2_B};
-        Encoder axis3Enc{PIN_AXIS_3_A, PIN_AXIS_3_B};
-        Encoder axis4Enc{PIN_AXIS_4_A, PIN_AXIS_4_B};
-        Encoder axis5Enc{PIN_AXIS_5_A, PIN_AXIS_5_B};
-        Encoder gripEnc{PIN_GRIP_A, PIN_GRIP_B};
-        Encoder transEnc{PIN_TRANS_A, PIN_TRANS_B};
+#define ENCODER_USE_INTERRUPTS
 
 
+class Acuator {
+public:
+    // Constructor for actuators with encoder
+    Acuator(int dir_pin, int pwm_pin, int enc_a_pin, int enc_b_pin, int sw_pin = -1)
+        : dir_pin_(dir_pin), pwm_pin_(pwm_pin), sw_pin_(sw_pin), enc_a_pin_(enc_a_pin), enc_b_pin_(enc_b_pin), Enc(enc_a_pin_, enc_b_pin_) {
 
-        void init();
+        if (dir_pin_ != -1) {
+            pinMode(dir_pin_, OUTPUT);
+        }
 
-    private:
+        pinMode(pwm_pin_, OUTPUT);
+        if (sw_pin_ != -1) {
+            pinMode(sw_pin_, OUTPUT);
+        }
+    }
 
+    // Constructor for actuators without encoder
+    Acuator(int dir_pin, int pwm_pin, int sw_pin = -1)
+        : dir_pin_(dir_pin), pwm_pin_(pwm_pin), sw_pin_(sw_pin), enc_a_pin_(-1), enc_b_pin_(-1), Enc(-1,-1) {
+
+        if (dir_pin_ != -1) {
+            pinMode(dir_pin_, OUTPUT);
+        }
+
+        pinMode(pwm_pin_, OUTPUT);
+        if (sw_pin_ != -1) {
+            pinMode(sw_pin_, OUTPUT);
+        }
+    }
+
+    Encoder Enc;
+
+    void runMotor(axisDirection_t dir, uint8_t speed);
+
+private:
+    int dir_pin_;
+    int pwm_pin_;
+    int sw_pin_;
+    int enc_a_pin_;
+    int enc_b_pin_;
 };
 
 
 
 
+void arm_init();
 
-
-
-
-
-
+axisDirection_t getOppositeDir(axisDirection_t dir);
+float dirToFloat(axisDirection_t dir);
+axisDirection_t floatToDir(float val);
 
 
 
