@@ -36,9 +36,12 @@ v0.1:
 ///////////////////////////////////////////////////////////////////////////////
 
 extern commandMSGStruct command;
-extern Acuator* axis[8];
+extern Joint* joint[7];
+extern Actuator* axis[7];
 
-Encoder axis1Enc(PIN_AXIS_1_A, PIN_AXIS_1_B);
+
+uint32_t t_lastPrint;
+
 
 ///////////////////////////////////////////////////////////////////////////////
 /*                                                                           */
@@ -51,7 +54,7 @@ void setup() {
   Serial.begin(115200);
   SerialTransfer_setup();
 
-  axis1Enc.write(0);
+
 
 
   while(micros()%1000000 != 0);
@@ -72,36 +75,38 @@ void loop() {
 
   
   
-  Serial.println(axis1Enc.read());
+  
 
   
 
-  axis[0]->runMotor(command.axisDir[0],command.axisSpeeds[0]);
+  
+  for (uint8_t i = 0; i < 7; i++) {
+    joint[i]->setSpeed(command.axisSpeeds[i], command.axisDir[i]);
+    
 
-
-  axis[1]->runMotor(command.axisDir[1],command.axisSpeeds[1]);
-  axis[2]->runMotor(command.axisDir[2],command.axisSpeeds[2]);
-
-  if (command.axisDir[3] != DIR_OFF) {
-    axis[3]->runMotor(command.axisDir[3],command.axisSpeeds[3]);
-    axis[4]->runMotor(getOppositeDir(command.axisDir[3]),command.axisSpeeds[3]);
   }
-  else if (command.axisDir[4] != DIR_OFF) {
-    axis[3]->runMotor(command.axisDir[4],command.axisSpeeds[4]);
-    axis[4]->runMotor(command.axisDir[4],command.axisSpeeds[4]);
-  }
-  else {
-    axis[3]->runMotor(DIR_OFF,0);
-    axis[4]->runMotor(DIR_OFF,0);
+  
+
+  for (uint8_t i = 0; i < 7; i++) {
+    joint[i]->update();
+
   }
 
-  axis[5]->runMotor(getOppositeDir(command.axisDir[5]), command.axisSpeeds[5]);
+  if (millis() - t_lastPrint > 100) {
+    t_lastPrint = millis();
+    for (uint8_t i = 0; i < 7; i++) {
+      Serial.print("A");
+      Serial.print(i+1);
+      Serial.print(": ");
+      Serial.print(joint[i]->getEncPos());
+      Serial.print(" - ");
+      Serial.print(digitalRead(axis[i]->sw_pin_));
 
-  axis[6]->runMotor(getOppositeDir(command.axisDir[6]), command.axisSpeeds[6]);
+      Serial.print(" | ");
+    }
+    Serial.println();
+  }
 
-  analogWrite(PIN_FAN_PWM, command.axisSpeeds[7]);
+
 
 }
-
-
-

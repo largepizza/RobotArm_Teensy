@@ -14,6 +14,7 @@ void SerialTransfer_setup() {
     Serial1.begin(115200);
     myTransfer.begin(Serial1);
     
+    
 }
 
 void SerialTransfer_loop() {

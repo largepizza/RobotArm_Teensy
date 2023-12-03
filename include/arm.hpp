@@ -14,6 +14,7 @@
 #include <Encoder.h>
 #include "datatypes.h"
 
+
 ///////////////////////////////////////////////////////////////////////////////
 /*                                                                           */
 /*                              PINOUT                                       */
@@ -66,48 +67,65 @@
 #define ENCODER_USE_INTERRUPTS
 
 
-class Acuator {
+class Actuator {
 public:
     // Constructor for actuators with encoder
-    Acuator(int dir_pin, int pwm_pin, int enc_a_pin, int enc_b_pin, int sw_pin = -1)
-        : dir_pin_(dir_pin), pwm_pin_(pwm_pin), sw_pin_(sw_pin), enc_a_pin_(enc_a_pin), enc_b_pin_(enc_b_pin), Enc(enc_a_pin_, enc_b_pin_) {
+    Actuator(int dir_pin, int pwm_pin, int sw_pin = -1)
+        : dir_pin_(dir_pin), pwm_pin_(pwm_pin), sw_pin_(sw_pin) {
 
         if (dir_pin_ != -1) {
             pinMode(dir_pin_, OUTPUT);
         }
 
         pinMode(pwm_pin_, OUTPUT);
+
         if (sw_pin_ != -1) {
             pinMode(sw_pin_, OUTPUT);
         }
     }
 
-    // Constructor for actuators without encoder
-    Acuator(int dir_pin, int pwm_pin, int sw_pin = -1)
-        : dir_pin_(dir_pin), pwm_pin_(pwm_pin), sw_pin_(sw_pin), enc_a_pin_(-1), enc_b_pin_(-1), Enc(-1,-1) {
-
-        if (dir_pin_ != -1) {
-            pinMode(dir_pin_, OUTPUT);
-        }
-
-        pinMode(pwm_pin_, OUTPUT);
-        if (sw_pin_ != -1) {
-            pinMode(sw_pin_, OUTPUT);
-        }
-    }
-
-    Encoder Enc;
+    Encoder* Enc;
+    bool inverted = false;
 
     void runMotor(axisDirection_t dir, uint8_t speed);
+    int getVelocity();
 
-private:
+    int index_;
     int dir_pin_;
     int pwm_pin_;
     int sw_pin_;
     int enc_a_pin_;
     int enc_b_pin_;
+
+private:
+    uint8_t speed_;
+    axisDirection_t dir_;
+
 };
 
+class Joint {
+    public:
+
+        void init(uint8_t index);
+
+
+        void update();
+        void setSpeed(uint8_t speed, axisDirection_t dir);
+
+
+        uint8_t getIndex();
+        int getVelocity();
+        int getSpeed();
+        int getEncPos();
+        axisDirection_t getDir();
+
+
+        private:
+            uint8_t speed_;
+            axisDirection_t dir_;
+            uint8_t index_;
+            int encPos_;
+};
 
 
 

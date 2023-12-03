@@ -28,24 +28,60 @@ v0.1:
 #include <Encoder.h>
 
 
+/*
 
-Acuator* axis[8];
+ ██████  ██       ██████  ██████   █████  ██      ███████ 
+██       ██      ██    ██ ██   ██ ██   ██ ██      ██      
+██   ███ ██      ██    ██ ██████  ███████ ██      ███████ 
+██    ██ ██      ██    ██ ██   ██ ██   ██ ██           ██ 
+ ██████  ███████  ██████  ██████  ██   ██ ███████ ███████ 
+                                                          
+                                                        
+*/
+
+
 
 // Axis
-Acuator axis1(PIN_AXIS_1_DIR, PIN_AXIS_1_PWM, PIN_AXIS_1_A, PIN_AXIS_1_B, PIN_AXIS_1_SW);
-Acuator axis2(PIN_AXIS_2_DIR, PIN_AXIS_2_PWM, PIN_AXIS_2_A, PIN_AXIS_2_B, PIN_AXIS_2_SW);
-Acuator axis3(PIN_AXIS_3_DIR, PIN_AXIS_3_PWM, PIN_AXIS_3_A, PIN_AXIS_3_B, PIN_AXIS_3_SW);
-Acuator axis4(PIN_AXIS_4_DIR, PIN_AXIS_4_PWM, PIN_AXIS_4_A, PIN_AXIS_4_B, PIN_AXIS_4_SW);
-Acuator axis5(PIN_AXIS_5_DIR, PIN_AXIS_5_PWM, PIN_AXIS_5_A, PIN_AXIS_5_B, PIN_AXIS_5_SW);
+Actuator axis1(PIN_AXIS_1_DIR, PIN_AXIS_1_PWM, PIN_AXIS_1_SW);
+Actuator axis2(PIN_AXIS_2_DIR, PIN_AXIS_2_PWM, PIN_AXIS_2_SW);
+Actuator axis3(PIN_AXIS_3_DIR, PIN_AXIS_3_PWM, PIN_AXIS_3_SW);
+Actuator axis4(PIN_AXIS_4_DIR, PIN_AXIS_4_PWM, PIN_AXIS_4_SW);
+Actuator axis5(PIN_AXIS_5_DIR, PIN_AXIS_5_PWM, PIN_AXIS_5_SW);
 
 // Grip
-Acuator axisGrip(PIN_GRIP_DIR, PIN_GRIP_PWM, PIN_GRIP_A, PIN_GRIP_B, PIN_GRIP_SW);
+Actuator axisGrip(PIN_GRIP_DIR, PIN_GRIP_PWM, PIN_GRIP_SW);
 
 // Translational Platform
-Acuator axisTrans(PIN_TRANS_DIR, PIN_TRANS_PWM, PIN_TRANS_A, PIN_TRANS_B, PIN_TRANS_SW);
+Actuator axisTrans(PIN_TRANS_DIR, PIN_TRANS_PWM, PIN_TRANS_SW);
 
-// Fan
-//Acuator axisFan(-1, PIN_FAN_PWM);
+
+Actuator* axis[7] = {&axis1, &axis2, &axis3, &axis4, &axis5, &axisGrip, &axisTrans};
+
+
+//Encoder
+Encoder axis1Enc(PIN_AXIS_1_A, PIN_AXIS_1_B);
+Encoder axis2Enc(PIN_AXIS_2_A, PIN_AXIS_2_B);
+Encoder axis3Enc(PIN_AXIS_3_A, PIN_AXIS_3_B);
+Encoder axis4Enc(PIN_AXIS_4_A, PIN_AXIS_4_B);
+Encoder axis5Enc(PIN_AXIS_5_A, PIN_AXIS_5_B);
+Encoder axisGripEnc(PIN_GRIP_A, PIN_GRIP_B);
+Encoder axisTransEnc(PIN_TRANS_A, PIN_TRANS_B);
+
+Encoder* encoder[7] = {&axis1Enc, &axis2Enc, &axis3Enc, &axis4Enc, &axis5Enc, &axisGripEnc, &axisTransEnc};
+
+//Joints
+Joint joint1;
+Joint joint2;
+Joint joint3;
+Joint joint4;
+Joint joint5;
+Joint jointGrip;
+Joint jointTrans;
+
+Joint* joint[7] = {&joint1, &joint2, &joint3, &joint4, &joint5, &jointGrip, &jointTrans};
+
+
+
 
 axisDirection_t getOppositeDir(axisDirection_t dir) {
   switch (dir) {
@@ -60,6 +96,83 @@ axisDirection_t getOppositeDir(axisDirection_t dir) {
       break;
   }
 }
+
+
+/*
+
+██ ███    ██ ██ ████████ 
+██ ████   ██ ██    ██    
+██ ██ ██  ██ ██    ██    
+██ ██  ██ ██ ██    ██    
+██ ██   ████ ██    ██    
+                         
+                         
+*/
+void arm_init() {
+
+  pinMode(PIN_CS_ESP, INPUT);
+  pinMode(PIN_MISO_ESP, OUTPUT);
+  pinMode(PIN_TRANS_SW, INPUT);
+  pinMode(PIN_AXIS_1_A, INPUT);
+  pinMode(PIN_AXIS_1_B, INPUT);
+  pinMode(PIN_AXIS_2_A, INPUT);
+  pinMode(PIN_AXIS_2_B, INPUT);
+  pinMode(PIN_AXIS_3_A, INPUT);
+  pinMode(PIN_AXIS_3_B, INPUT);
+  pinMode(PIN_FAN_PWM, OUTPUT);
+  pinMode(PIN_AXIS_4_A, INPUT);
+  pinMode(PIN_AXIS_4_B, INPUT);
+  pinMode(PIN_AXIS_5_A, INPUT);
+  pinMode(PIN_AXIS_4_PWM, OUTPUT);
+  pinMode(PIN_AXIS_5_PWM, OUTPUT);
+  pinMode(PIN_GRIP_PWM, OUTPUT);
+  pinMode(PIN_AXIS_4_DIR, OUTPUT);
+  pinMode(PIN_AXIS_4_SW, INPUT);
+  pinMode(PIN_TRANS_PWM, OUTPUT);
+  pinMode(PIN_AXIS_5_DIR, OUTPUT);
+  pinMode(PIN_AXIS_5_SW, INPUT);
+  pinMode(PIN_GRIP_DIR, OUTPUT);
+  pinMode(PIN_GRIP_SW, INPUT);
+  pinMode(PIN_TRANS_DIR, OUTPUT);
+  pinMode(PIN_AXIS_5_B, INPUT);
+  pinMode(PIN_GRIP_A, INPUT);
+  pinMode(PIN_MOSI_ESP, INPUT);
+  pinMode(PIN_SCK_ESP, INPUT);
+  pinMode(PIN_GRIP_B, INPUT);
+  pinMode(PIN_TRANS_A, INPUT);
+  pinMode(PIN_TRANS_B, INPUT);
+  pinMode(PIN_AXIS_3_SW, INPUT);
+  pinMode(PIN_LDO_PWR, OUTPUT);
+  pinMode(PIN_AXIS_1_PWM, OUTPUT);
+  pinMode(PIN_AXIS_1_DIR, OUTPUT);
+  pinMode(PIN_AXIS_1_SW, INPUT);
+  pinMode(PIN_AXIS_2_PWM, OUTPUT);
+  pinMode(PIN_AXIS_3_PWM, OUTPUT);
+  pinMode(PIN_AXIS_2_DIR, OUTPUT);
+  pinMode(PIN_AXIS_2_SW, INPUT);
+  pinMode(PIN_AXIS_3_DIR, OUTPUT);
+  pinMode(PIN_TEMP, INPUT);
+
+  joint1.init(0);
+  joint2.init(1);
+  joint3.init(2);
+  joint4.init(3);
+  joint5.init(4);
+  jointGrip.init(5);
+  jointTrans.init(6);
+  
+
+}
+
+/*
+
+██████  ██ ██████      ███████ ██    ██ ███    ██  ██████ ████████ ██  ██████  ███    ██ ███████ 
+██   ██ ██ ██   ██     ██      ██    ██ ████   ██ ██         ██    ██ ██    ██ ████   ██ ██      
+██   ██ ██ ██████      █████   ██    ██ ██ ██  ██ ██         ██    ██ ██    ██ ██ ██  ██ ███████ 
+██   ██ ██ ██   ██     ██      ██    ██ ██  ██ ██ ██         ██    ██ ██    ██ ██  ██ ██      ██ 
+██████  ██ ██   ██     ██       ██████  ██   ████  ██████    ██    ██  ██████  ██   ████ ███████ 
+                                                                                                                                                                                                                                                                                      
+*/
 
 float dirToFloat(axisDirection_t dir) {
     switch (dir) {
@@ -81,77 +194,21 @@ axisDirection_t floatToDir(float val) {
     else {return DIR_OFF;}
 }
 
-void arm_init() {
+/*
 
-    pinMode(PIN_CS_ESP, INPUT);
-    pinMode(PIN_MISO_ESP, OUTPUT);
-    pinMode(PIN_TRANS_SW, INPUT);
-    pinMode(PIN_AXIS_1_A, INPUT);
-    pinMode(PIN_AXIS_1_B, INPUT);
-    pinMode(PIN_AXIS_2_A, INPUT);
-    pinMode(PIN_AXIS_2_B, INPUT);
-    pinMode(PIN_AXIS_3_A, INPUT);
-    pinMode(PIN_AXIS_3_B, INPUT);
-    pinMode(PIN_FAN_PWM, OUTPUT);
-    pinMode(PIN_AXIS_4_A, INPUT);
-    pinMode(PIN_AXIS_4_B, INPUT);
-    pinMode(PIN_AXIS_5_A, INPUT);
-    pinMode(PIN_AXIS_4_PWM, OUTPUT);
-    pinMode(PIN_AXIS_5_PWM, OUTPUT);
-    pinMode(PIN_GRIP_PWM, OUTPUT);
-    pinMode(PIN_AXIS_4_DIR, OUTPUT);
-    pinMode(PIN_AXIS_4_SW, INPUT);
-    pinMode(PIN_TRANS_PWM, OUTPUT);
-    pinMode(PIN_AXIS_5_DIR, OUTPUT);
-    pinMode(PIN_AXIS_5_SW, INPUT);
-    pinMode(PIN_GRIP_DIR, OUTPUT);
-    pinMode(PIN_GRIP_SW, INPUT);
-    pinMode(PIN_TRANS_DIR, OUTPUT);
-    pinMode(PIN_AXIS_5_B, INPUT);
-    pinMode(PIN_GRIP_A, INPUT);
-    pinMode(PIN_MOSI_ESP, INPUT);
-    pinMode(PIN_SCK_ESP, INPUT);
-    pinMode(PIN_GRIP_B, INPUT);
-    pinMode(PIN_TRANS_A, INPUT);
-    pinMode(PIN_TRANS_B, INPUT);
-    pinMode(PIN_AXIS_3_SW, INPUT);
-    pinMode(PIN_LDO_PWR, OUTPUT);
-    pinMode(PIN_AXIS_1_PWM, OUTPUT);
-    pinMode(PIN_AXIS_1_DIR, OUTPUT);
-    pinMode(PIN_AXIS_1_SW, INPUT);
-    pinMode(PIN_AXIS_2_PWM, OUTPUT);
-    pinMode(PIN_AXIS_3_PWM, OUTPUT);
-    pinMode(PIN_AXIS_2_DIR, OUTPUT);
-    pinMode(PIN_AXIS_2_SW, INPUT);
-    pinMode(PIN_AXIS_3_DIR, OUTPUT);
-    pinMode(PIN_TEMP, INPUT);
+ █████   ██████ ██    ██  █████  ████████  ██████  ██████       ██████ ██       █████  ███████ ███████ 
+██   ██ ██      ██    ██ ██   ██    ██    ██    ██ ██   ██     ██      ██      ██   ██ ██      ██      
+███████ ██      ██    ██ ███████    ██    ██    ██ ██████      ██      ██      ███████ ███████ ███████ 
+██   ██ ██      ██    ██ ██   ██    ██    ██    ██ ██   ██     ██      ██      ██   ██      ██      ██ 
+██   ██  ██████  ██████  ██   ██    ██     ██████  ██   ██      ██████ ███████ ██   ██ ███████ ███████ 
+                                                                                                       
+                                                                                                       
+*/
+void Actuator::runMotor(axisDirection_t dir, uint8_t speed) {
+  speed_ = speed;
+  dir_ = dir;
+  
 
-    
-
-
-    //Axis
-    axis[0] = &axis1;
-    axis[1] = &axis2;
-    axis[2] = &axis3;
-    axis[3] = &axis4;
-    axis[4] = &axis5;
-
-    // Grip
-    axis[5] = &axisGrip;
-
-    // Translational Platform
-    axis[6] = &axisTrans;
-
-    // // Fan
-    // axis[7] = &axisFan;
-
-    
-
-   
-
-}
-
-void Acuator::runMotor(axisDirection_t dir, uint8_t speed) {
     switch (dir) {
         case DIR_OFF:
             digitalWrite(dir_pin_, LOW);
@@ -168,6 +225,78 @@ void Acuator::runMotor(axisDirection_t dir, uint8_t speed) {
         default:
             break;
     }
-
-    return;
 }
+
+int Actuator::getVelocity() {
+  return speed_ * dirToFloat(dir_);
+}
+
+  
+  /*
+  
+     ██  ██████  ██ ███    ██ ████████      ██████ ██       █████  ███████ ███████ 
+     ██ ██    ██ ██ ████   ██    ██        ██      ██      ██   ██ ██      ██      
+     ██ ██    ██ ██ ██ ██  ██    ██        ██      ██      ███████ ███████ ███████ 
+██   ██ ██    ██ ██ ██  ██ ██    ██        ██      ██      ██   ██      ██      ██ 
+ █████   ██████  ██ ██   ████    ██         ██████ ███████ ██   ██ ███████ ███████ 
+                                                                                                                                                                      
+*/
+
+void Joint::init(uint8_t index) {
+  index_ = index;
+
+}
+
+void Joint::update() {
+  int velocity3;
+  int velocity4;
+
+  switch (index_) {
+    case 3:
+      encPos_ = encoder[3]->read()-encoder[4]->read();
+      break;
+    case 4:
+      encPos_ = encoder[3]->read()+encoder[4]->read();
+      velocity3 = constrain(joint4.getVelocity() + joint5.getVelocity(), -255, 255);
+      velocity4 = constrain(-joint4.getVelocity() + joint5.getVelocity(), -255, 255);
+
+
+      axis[3]->runMotor(floatToDir(velocity3), abs(velocity3));
+      axis[4]->runMotor(floatToDir(velocity4), abs(velocity4));
+      
+
+      break;
+    default:
+      encPos_ = encoder[index_]->read();
+      axis[index_]->runMotor(dir_,speed_);
+      
+      break;
+  }
+
+}
+
+void Joint::setSpeed(uint8_t speed, axisDirection_t dir) {
+  speed_ = speed;
+  dir_ = dir;
+}
+
+uint8_t Joint::getIndex() {
+  return index_;
+}
+
+int Joint::getVelocity() {
+  return speed_ * dirToFloat(dir_);
+}
+
+int Joint::getSpeed() {
+  return speed_;
+}
+
+axisDirection_t Joint::getDir() {
+  axisDirection_t dir_;
+}
+
+int Joint::getEncPos() {
+  return encPos_;
+}
+
