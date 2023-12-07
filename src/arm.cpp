@@ -42,17 +42,17 @@ v0.1:
 
 
 // Axis
-Actuator axis1(PIN_AXIS_1_DIR, PIN_AXIS_1_PWM, PIN_AXIS_1_SW);
-Actuator axis2(PIN_AXIS_2_DIR, PIN_AXIS_2_PWM, PIN_AXIS_2_SW);
-Actuator axis3(PIN_AXIS_3_DIR, PIN_AXIS_3_PWM, PIN_AXIS_3_SW);
-Actuator axis4(PIN_AXIS_4_DIR, PIN_AXIS_4_PWM, PIN_AXIS_4_SW);
-Actuator axis5(PIN_AXIS_5_DIR, PIN_AXIS_5_PWM, PIN_AXIS_5_SW);
+Actuator axis1(PIN_AXIS_1_DIR, PIN_AXIS_1_PWM);
+Actuator axis2(PIN_AXIS_2_DIR, PIN_AXIS_2_PWM);
+Actuator axis3(PIN_AXIS_3_DIR, PIN_AXIS_3_PWM);
+Actuator axis4(PIN_AXIS_4_DIR, PIN_AXIS_4_PWM);
+Actuator axis5(PIN_AXIS_5_DIR, PIN_AXIS_5_PWM);
 
 // Grip
-Actuator axisGrip(PIN_GRIP_DIR, PIN_GRIP_PWM, PIN_GRIP_SW);
+Actuator axisGrip(PIN_GRIP_DIR, PIN_GRIP_PWM);
 
 // Translational Platform
-Actuator axisTrans(PIN_TRANS_DIR, PIN_TRANS_PWM, PIN_TRANS_SW);
+Actuator axisTrans(PIN_TRANS_DIR, PIN_TRANS_PWM);
 
 
 Actuator* axis[7] = {&axis1, &axis2, &axis3, &axis4, &axis5, &axisGrip, &axisTrans};
@@ -153,13 +153,16 @@ void arm_init() {
   pinMode(PIN_AXIS_3_DIR, OUTPUT);
   pinMode(PIN_TEMP, INPUT);
 
-  joint1.init(0);
-  joint2.init(1);
-  joint3.init(2);
-  joint4.init(3);
-  joint5.init(4);
-  jointGrip.init(5);
-  jointTrans.init(6);
+  joint1.init(0, PIN_AXIS_1_SW);
+  joint2.init(1, PIN_AXIS_2_SW);
+  joint3.init(2, PIN_AXIS_3_SW);
+  joint4.init(3, PIN_AXIS_4_SW);
+  joint5.init(4, PIN_AXIS_5_SW);
+  jointGrip.init(5, PIN_GRIP_SW);
+  jointTrans.init(6, PIN_TRANS_SW);
+
+  axis2.inverted = true;
+  
   
 
 }
@@ -207,9 +210,11 @@ axisDirection_t floatToDir(float val) {
 void Actuator::runMotor(axisDirection_t dir, uint8_t speed) {
   speed_ = speed;
   dir_ = dir;
+
+  if (inverted) {dir_ = getOppositeDir(dir);}
   
 
-    switch (dir) {
+    switch (dir_) {
         case DIR_OFF:
             digitalWrite(dir_pin_, LOW);
             analogWrite(pwm_pin_, 0);
@@ -242,8 +247,9 @@ int Actuator::getVelocity() {
                                                                                                                                                                       
 */
 
-void Joint::init(uint8_t index) {
+void Joint::init(uint8_t index, uint8_t sw_pin) {
   index_ = index;
+  sw_pin_ = sw_pin;
 
 }
 
@@ -268,6 +274,9 @@ void Joint::update() {
       break;
     default:
       encPos_ = encoder[index_]->read();
+      if (axis[index_]->inverted) {
+        encPos_ *= -1;
+      }
       axis[index_]->runMotor(dir_,speed_);
       
       break;

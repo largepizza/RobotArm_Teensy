@@ -70,8 +70,8 @@
 class Actuator {
 public:
     // Constructor for actuators with encoder
-    Actuator(int dir_pin, int pwm_pin, int sw_pin = -1)
-        : dir_pin_(dir_pin), pwm_pin_(pwm_pin), sw_pin_(sw_pin) {
+    Actuator(int dir_pin, int pwm_pin)
+        : dir_pin_(dir_pin), pwm_pin_(pwm_pin) {
 
         if (dir_pin_ != -1) {
             pinMode(dir_pin_, OUTPUT);
@@ -79,9 +79,7 @@ public:
 
         pinMode(pwm_pin_, OUTPUT);
 
-        if (sw_pin_ != -1) {
-            pinMode(sw_pin_, OUTPUT);
-        }
+
     }
 
     Encoder* Enc;
@@ -93,7 +91,7 @@ public:
     int index_;
     int dir_pin_;
     int pwm_pin_;
-    int sw_pin_;
+    
     int enc_a_pin_;
     int enc_b_pin_;
 
@@ -106,7 +104,7 @@ private:
 class Joint {
     public:
 
-        void init(uint8_t index);
+        void init(uint8_t index, uint8_t sw_pin);
 
 
         void update();
@@ -118,7 +116,7 @@ class Joint {
         int getSpeed();
         int getEncPos();
         axisDirection_t getDir();
-
+        int sw_pin_;
 
         private:
             uint8_t speed_;

@@ -4,6 +4,7 @@
 
 
 commandMSGStruct command;
+dataMSGStruct data;
 
 SerialTransfer myTransfer;
 uint32_t t_lastTransfer;
@@ -12,12 +13,19 @@ uint32_t t_lastTransfer;
 void SerialTransfer_setup() {
 
     Serial1.begin(115200);
-    myTransfer.begin(Serial1);
+    myTransfer.begin(Serial1, false);
     
     
 }
 
 void SerialTransfer_loop() {
+
+  if (millis() - t_lastTransfer >= SERIAL_TRANSFER_RATE) {
+      t_lastTransfer = millis();
+
+
+      myTransfer.sendDatum(data);
+  }
   
  if(myTransfer.available())
   {

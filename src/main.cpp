@@ -36,6 +36,8 @@ v0.1:
 ///////////////////////////////////////////////////////////////////////////////
 
 extern commandMSGStruct command;
+extern dataMSGStruct data;
+
 extern Joint* joint[7];
 extern Actuator* axis[7];
 
@@ -81,7 +83,7 @@ void loop() {
 
   
   for (uint8_t i = 0; i < 7; i++) {
-    joint[i]->setSpeed(command.axisSpeeds[i], command.axisDir[i]);
+    joint[i]->setSpeed(command.axisSpeeds[i], (axisDirection_t)command.axisDir[i]);
     
 
   }
@@ -89,18 +91,20 @@ void loop() {
 
   for (uint8_t i = 0; i < 7; i++) {
     joint[i]->update();
+    data.encPos[i] = joint[i]->getEncPos();
 
   }
 
   if (millis() - t_lastPrint > 100) {
     t_lastPrint = millis();
+    
     for (uint8_t i = 0; i < 7; i++) {
       Serial.print("A");
       Serial.print(i+1);
       Serial.print(": ");
       Serial.print(joint[i]->getEncPos());
       Serial.print(" - ");
-      Serial.print(digitalRead(axis[i]->sw_pin_));
+      Serial.print(digitalRead(joint[i]->sw_pin_));
 
       Serial.print(" | ");
     }
