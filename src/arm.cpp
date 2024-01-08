@@ -284,6 +284,8 @@ void Joint::update() {
 
 }
 
+
+
 void Joint::setSpeed(uint8_t speed, axisDirection_t dir) {
   speed_ = speed;
   dir_ = dir;

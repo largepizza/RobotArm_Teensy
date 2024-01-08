@@ -65,6 +65,9 @@
 #define PIN_TEMP 41
 
 #define ENCODER_USE_INTERRUPTS
+#define ENCODER_SLOTS 20.0F
+
+const double gearRatios[7] = {127.1, 127.1, 127.1, 65.5, 65.5, 19.5, 10.0};
 
 
 class Actuator {
@@ -115,6 +118,7 @@ class Joint {
         int getVelocity();
         int getSpeed();
         int getEncPos();
+        double getAngle();
         axisDirection_t getDir();
         int sw_pin_;
 
@@ -122,6 +126,7 @@ class Joint {
             uint8_t speed_;
             axisDirection_t dir_;
             uint8_t index_;
+            double angle_;
             int encPos_;
 };
 

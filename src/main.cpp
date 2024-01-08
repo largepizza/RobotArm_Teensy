@@ -7,7 +7,7 @@
 
 -Nicodemus Phaklides
 
-Description: Controller for Scorbot ER-V robot arm using a Teensy 4.1 as an SPI subscriber
+Description: Controller for Scorbot ER-V robot arm using a Teensy 4.1 as an Serial subscriber
 
 
 
@@ -28,6 +28,7 @@ v0.1:
 #include "datatypes.h"
 #include "arm.hpp" //Includes pinout definitions, basic commands
 #include "serial_transfer.hpp"
+#include <ArduinoJson.h>
 
 ///////////////////////////////////////////////////////////////////////////////
 /*                                                                           */
@@ -35,14 +36,19 @@ v0.1:
 /*                                                                           */
 ///////////////////////////////////////////////////////////////////////////////
 
-extern commandMSGStruct command;
+extern cmd_t command;
+extern char cmd_buffer[BUFFER_SIZE];
+extern cmdRecieveStatus_t cmdRecieveStatus;
 extern dataMSGStruct data;
+DynamicJsonDocument dataDoc(BUFFER_SIZE);
+
 
 extern Joint* joint[7];
 extern Actuator* axis[7];
 
 
 uint32_t t_lastPrint;
+bool statusLED = false;
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -56,10 +62,10 @@ void setup() {
   Serial.begin(115200);
   SerialTransfer_setup();
 
+  cmdRecieveStatus = CMD_RECIEVE_NONE;
+  digitalWrite(PIN_LDO_PWR, HIGH);
 
-
-
-  while(micros()%1000000 != 0);
+  //while(micros()%1000000 != 0);
 }
 
 
@@ -70,23 +76,39 @@ void setup() {
 ///////////////////////////////////////////////////////////////////////////////
 void loop() {
   
-  SerialTransfer_loop();
+   SerialTransfer_loop();
 
-  digitalWrite(PIN_LDO_PWR, HIGH);
+ 
 
-
-  
-  
-  
 
   
+  if (cmdRecieveStatus == CMD_RECIEVED) {
+    cmdRecieveStatus = CMD_RECIEVE_NONE;
+    deserializeJson(dataDoc,cmd_buffer);
+    //serializeJson(dataDoc,Serial);
+    //Serial.println();
 
-  
-  for (uint8_t i = 0; i < 7; i++) {
-    joint[i]->setSpeed(command.axisSpeeds[i], (axisDirection_t)command.axisDir[i]);
-    
+    cmdType_t cmd_type = (cmdType_t)(uint8_t)dataDoc["cmd"];
+
+    switch (cmd_type) {
+      case CMD_RUN_MOTOR:
+        joint[((uint8_t)dataDoc["axis"])-1]->setSpeed(((uint16_t)dataDoc["speed"]*255)/100, dataDoc["direction"]);
+        //Serial.print("GOING");
+        break;
+      default:
+        break;
+
+    }
+
+    // Serial.print("CMD: ");
+    // Serial.print(command.cmd);
+    // Serial.print(" DATA: ");
+    // serializeJson(dataDoc, Serial);
 
   }
+  
+  
+
   
 
   for (uint8_t i = 0; i < 7; i++) {
@@ -97,7 +119,8 @@ void loop() {
 
   if (millis() - t_lastPrint > 100) {
     t_lastPrint = millis();
-    
+    statusLED = !statusLED;
+     digitalWrite(PIN_LDO_PWR, statusLED);
     for (uint8_t i = 0; i < 7; i++) {
       Serial.print("A");
       Serial.print(i+1);

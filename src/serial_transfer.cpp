@@ -3,17 +3,20 @@
 
 
 
-commandMSGStruct command;
+cmd_t command;
+cmdRecieveStatus_t cmdRecieveStatus;
+
 dataMSGStruct data;
 
 SerialTransfer myTransfer;
 uint32_t t_lastTransfer;
 
+char cmd_buffer[BUFFER_SIZE];
 
 void SerialTransfer_setup() {
 
     Serial1.begin(115200);
-    myTransfer.begin(Serial1, false);
+    myTransfer.begin(Serial1);
     
     
 }
@@ -26,11 +29,23 @@ void SerialTransfer_loop() {
 
       myTransfer.sendDatum(data);
   }
-  
- if(myTransfer.available())
+  else {
+    if(myTransfer.available())
   {
-    digitalWriteFast(LED_BUILTIN, HIGH);
-    myTransfer.rxObj(command);
+    
+    
+
+      uint16_t recSize = 0;
+
+      //recSize = myTransfer.rxObj(command, recSize);
+      recSize = myTransfer.rxObj(cmd_buffer, recSize);
+
+      Serial.println(cmd_buffer);
+      
+      cmdRecieveStatus = CMD_RECIEVED;
+      
+
+
 
     /*
     Serial.print("T: ");
@@ -51,8 +66,12 @@ void SerialTransfer_loop() {
     }
     Serial.println("");
     */
+   digitalWriteFast(LED_BUILTIN, HIGH);
   }
   else {
     digitalWriteFast(LED_BUILTIN, LOW);
   }
+  }
+  
+ 
 }
