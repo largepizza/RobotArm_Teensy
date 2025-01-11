@@ -29,15 +29,12 @@ enum cmdRecieveStatus_t {
 };
 
 
-struct cmd_t {
-  uint8_t cmd;
-  uint32_t t;
-} __attribute__((packed));
+typedef struct __attribute__((packed)) rxDataStruct {
+    float controller_axis[6];
+    int32_t controller_buttons[8];
+} rxDataStruct;
 
-
-struct dataMSGStruct {
-  int encPos[7];
-  int speed[7];
-
-
-} __attribute__((packed));
+typedef struct __attribute__((packed)) txDataStruct {
+  float controller_axis[6];
+  int32_t encoders[7];
+} txDataStruct;

@@ -7,12 +7,13 @@
 #include <SPI.h>
 #include <SerialTransfer.h>
 #include "datatypes.h"
-
+#include "arm.hpp"
 
 
 #define SERIAL_TRANSFER_RATE 10
 
-
+extern rxDataStruct rxData;
+extern txDataStruct txData;
 
 
 

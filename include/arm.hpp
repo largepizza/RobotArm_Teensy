@@ -21,8 +21,8 @@
 /*                                                                           */
 ///////////////////////////////////////////////////////////////////////////////
 
-#define PIN_CS_ESP 0
-#define PIN_MISO_ESP 1
+#define PIN_TX_ESP 0
+#define PIN_RX_ESP 1
 #define PIN_TRANS_SW 2
 #define PIN_AXIS_1_A 3
 #define PIN_AXIS_1_B 4
@@ -47,13 +47,13 @@
 #define PIN_TRANS_DIR 23
 #define PIN_AXIS_5_B 24
 #define PIN_GRIP_A 25
-#define PIN_MOSI_ESP 26
-#define PIN_SCK_ESP 27
+#define PIN_CURRENT_SENSE 26
+#define PIN_BUZZER 27
 #define PIN_GRIP_B 28
 #define PIN_TRANS_A 29
 #define PIN_TRANS_B 30
 #define PIN_AXIS_3_SW 31
-#define PIN_LDO_PWR 32
+#define PIN_DISABLE 32
 #define PIN_AXIS_1_PWM 33
 #define PIN_AXIS_1_DIR 34
 #define PIN_AXIS_1_SW 35
@@ -68,6 +68,9 @@
 #define ENCODER_SLOTS 20.0F
 
 const double gearRatios[7] = {127.1, 127.1, 127.1, 65.5, 65.5, 19.5, 10.0};
+
+
+
 
 
 class Actuator {
@@ -138,7 +141,8 @@ axisDirection_t getOppositeDir(axisDirection_t dir);
 float dirToFloat(axisDirection_t dir);
 axisDirection_t floatToDir(float val);
 
-
-
+extern Joint* joint[7];
+extern Actuator* axis[7];
+extern Encoder* encoder[7];
 
 #endif

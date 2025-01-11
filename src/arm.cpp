@@ -110,8 +110,8 @@ axisDirection_t getOppositeDir(axisDirection_t dir) {
 */
 void arm_init() {
 
-  pinMode(PIN_CS_ESP, INPUT);
-  pinMode(PIN_MISO_ESP, OUTPUT);
+  pinMode(PIN_RX_ESP, INPUT);
+  pinMode(PIN_TX_ESP, OUTPUT);
   pinMode(PIN_TRANS_SW, INPUT);
   pinMode(PIN_AXIS_1_A, INPUT);
   pinMode(PIN_AXIS_1_B, INPUT);
@@ -136,13 +136,13 @@ void arm_init() {
   pinMode(PIN_TRANS_DIR, OUTPUT);
   pinMode(PIN_AXIS_5_B, INPUT);
   pinMode(PIN_GRIP_A, INPUT);
-  pinMode(PIN_MOSI_ESP, INPUT);
-  pinMode(PIN_SCK_ESP, INPUT);
+  pinMode(PIN_CURRENT_SENSE, INPUT);
+  pinMode(PIN_BUZZER, INPUT);
   pinMode(PIN_GRIP_B, INPUT);
   pinMode(PIN_TRANS_A, INPUT);
   pinMode(PIN_TRANS_B, INPUT);
   pinMode(PIN_AXIS_3_SW, INPUT);
-  pinMode(PIN_LDO_PWR, OUTPUT);
+  pinMode(PIN_DISABLE, OUTPUT);
   pinMode(PIN_AXIS_1_PWM, OUTPUT);
   pinMode(PIN_AXIS_1_DIR, OUTPUT);
   pinMode(PIN_AXIS_1_SW, INPUT);

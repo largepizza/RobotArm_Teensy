@@ -36,15 +36,12 @@ v0.1:
 /*                                                                           */
 ///////////////////////////////////////////////////////////////////////////////
 
-extern cmd_t command;
 extern char cmd_buffer[BUFFER_SIZE];
-extern cmdRecieveStatus_t cmdRecieveStatus;
-extern dataMSGStruct data;
-DynamicJsonDocument dataDoc(BUFFER_SIZE);
 
 
-extern Joint* joint[7];
-extern Actuator* axis[7];
+
+
+
 
 
 uint32_t t_lastPrint;
@@ -59,11 +56,11 @@ bool statusLED = false;
 void setup() {
 
   arm_init();
-  Serial.begin(115200);
+
   SerialTransfer_setup();
 
-  cmdRecieveStatus = CMD_RECIEVE_NONE;
-  digitalWrite(PIN_LDO_PWR, HIGH);
+
+  digitalWrite(PIN_DISABLE, LOW);
 
   //while(micros()%1000000 != 0);
 }
@@ -79,60 +76,76 @@ void loop() {
    SerialTransfer_loop();
 
  
-
-
-  
-  if (cmdRecieveStatus == CMD_RECIEVED) {
-    cmdRecieveStatus = CMD_RECIEVE_NONE;
-    deserializeJson(dataDoc,cmd_buffer);
-    //serializeJson(dataDoc,Serial);
-    //Serial.println();
-
-    cmdType_t cmd_type = (cmdType_t)(uint8_t)dataDoc["cmd"];
-
-    switch (cmd_type) {
-      case CMD_RUN_MOTOR:
-        joint[((uint8_t)dataDoc["axis"])-1]->setSpeed(((uint16_t)dataDoc["speed"]*255)/100, dataDoc["direction"]);
-        //Serial.print("GOING");
-        break;
-      default:
-        break;
-
-    }
-
-    // Serial.print("CMD: ");
-    // Serial.print(command.cmd);
-    // Serial.print(" DATA: ");
-    // serializeJson(dataDoc, Serial);
-
+  // Joint control
+  // Joint 0 - YAW
+  if (abs(rxData.controller_axis[0]) > 0.2f ) {
+    joint[0]->setSpeed(abs(rxData.controller_axis[0]) * 255.0f, floatToDir(rxData.controller_axis[0]));
   }
+  else {
+    joint[0]->setSpeed(0, DIR_OFF);
+  }
+  // Joint 1 - SHOULDER
+  if (abs(rxData.controller_axis[1]) > 0.2f ) {
+    joint[1]->setSpeed(abs(rxData.controller_axis[1]) * 255.0f,floatToDir(rxData.controller_axis[1]));
+  }
+  else {
+    joint[1]->setSpeed(0, DIR_OFF);
+  }
+  // Joint 2 - ELBOW
+  if (abs(rxData.controller_axis[3]) > 0.2f ) {
+    joint[2]->setSpeed(abs(rxData.controller_axis[3]) * 255.0f,floatToDir(rxData.controller_axis[3]));
+  }
+  else {
+    joint[2]->setSpeed(0, DIR_OFF);
+  }
+  // Joint 3 - WRIST
+  if (abs(rxData.controller_axis[2]) > 0.2f ) {
+    joint[3]->setSpeed(abs(rxData.controller_axis[2]) * 255.0f,floatToDir(rxData.controller_axis[2]));
+  }
+  else {
+    joint[3]->setSpeed(0, DIR_OFF);
+  }
+  // Joint 4 - WRIST ROTATION
+  if (rxData.controller_buttons[5] > 0) {
+    joint[4]->setSpeed(100, DIR_PLUS);
+  }
+  else if (rxData.controller_buttons[4] > 0) {
+    joint[4]->setSpeed(100, DIR_MINUS);
+  }
+  else {
+    joint[4]->setSpeed(0, DIR_OFF);
+  }
+  // Joint 5 - GRIPPER
+  if (rxData.controller_buttons[0] > 0) {
+    joint[5]->setSpeed(100, DIR_PLUS);
+  }
+  else if (rxData.controller_buttons[1] > 0) {
+    joint[5]->setSpeed(100, DIR_MINUS);
+  }
+  else {
+    joint[5]->setSpeed(0, DIR_OFF);
+  }
+  // Joint 6 - TRANSLATION
+  float transControl = (rxData.controller_axis[4]+1.0f)/2.0f - (rxData.controller_axis[5]+1.0f)/2.0f;
+  if (abs(transControl) > 0.2f ) {
+    joint[6]->setSpeed(abs(transControl) * 255.0, floatToDir(transControl));
+  }
+  else {
+    joint[6]->setSpeed(0, DIR_OFF);
+  }
+
+
   
+
   
 
   
 
   for (uint8_t i = 0; i < 7; i++) {
     joint[i]->update();
-    data.encPos[i] = joint[i]->getEncPos();
 
   }
 
-  if (millis() - t_lastPrint > 100) {
-    t_lastPrint = millis();
-    statusLED = !statusLED;
-     digitalWrite(PIN_LDO_PWR, statusLED);
-    for (uint8_t i = 0; i < 7; i++) {
-      Serial.print("A");
-      Serial.print(i+1);
-      Serial.print(": ");
-      Serial.print(joint[i]->getEncPos());
-      Serial.print(" - ");
-      Serial.print(digitalRead(joint[i]->sw_pin_));
-
-      Serial.print(" | ");
-    }
-    Serial.println();
-  }
 
 
 
