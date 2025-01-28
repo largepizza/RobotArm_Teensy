@@ -16,7 +16,7 @@ char cmd_buffer[BUFFER_SIZE];
 
 void SerialTransfer_setup() {
 
-    Serial.begin(115200);
+    Serial.begin(500000);
     myTransfer.begin(Serial);
     
     
@@ -35,6 +35,11 @@ void SerialTransfer_loop() {
       //Pack controller data
       for (uint8_t i = 0; i < 6; i++) {
         txData.controller_axis[i] = rxData.controller_axis[i];
+      }
+
+      //Pack angles
+      for (uint8_t i = 0; i < 6; i++) {
+        txData.angles[i] = (float)joint[i]->getAngle();
       }
 
       uint16_t txSize = 0;

@@ -122,6 +122,8 @@ class Joint {
         int getSpeed();
         int getEncPos();
         double getAngle();
+        bool getLimit();
+        void zero();
         axisDirection_t getDir();
         int sw_pin_;
 
@@ -129,8 +131,10 @@ class Joint {
             uint8_t speed_;
             axisDirection_t dir_;
             uint8_t index_;
+            bool switchState_;
             double angle_;
             int encPos_;
+            int encPosOffset_;
 };
 
 

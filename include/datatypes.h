@@ -17,6 +17,12 @@ typedef enum cmdType_t {
   CMD_JOINT_SPACE
 };
 
+typedef enum controlStatus_t {
+  CONTROL_NONE,
+  CONTROL_JOINT_CONTROLLER,
+  CONTROL_ZERO
+};
+
 
 enum cmdSendStatus_t {
     CMD_SEND_READY,
@@ -37,4 +43,5 @@ typedef struct __attribute__((packed)) rxDataStruct {
 typedef struct __attribute__((packed)) txDataStruct {
   float controller_axis[6];
   int32_t encoders[7];
+  float angles[6];
 } txDataStruct;

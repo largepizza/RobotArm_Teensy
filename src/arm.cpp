@@ -257,12 +257,13 @@ void Joint::update() {
   int velocity3;
   int velocity4;
 
+  //Update encoder position based, motor status, and switch status
   switch (index_) {
     case 3:
-      encPos_ = encoder[3]->read()-encoder[4]->read();
+      encPos_ = encoder[3]->read()-encoder[4]->read() - encPosOffset_;
       break;
     case 4:
-      encPos_ = encoder[3]->read()+encoder[4]->read();
+      encPos_ = encoder[3]->read()+encoder[4]->read() - encPosOffset_;
       velocity3 = constrain(joint4.getVelocity() + joint5.getVelocity(), -255, 255);
       velocity4 = constrain(-joint4.getVelocity() + joint5.getVelocity(), -255, 255);
 
@@ -277,6 +278,9 @@ void Joint::update() {
       if (axis[index_]->inverted) {
         encPos_ *= -1;
       }
+      
+      encPos_ -= encPosOffset_;
+
       axis[index_]->runMotor(dir_,speed_);
       
       break;
@@ -303,11 +307,24 @@ int Joint::getSpeed() {
   return speed_;
 }
 
+bool Joint::getLimit() {
+  switchState_ = digitalRead(sw_pin_);
+  return switchState_;
+}
+
 axisDirection_t Joint::getDir() {
   axisDirection_t dir_;
 }
 
 int Joint::getEncPos() {
   return encPos_;
+}
+
+void Joint::zero() {
+  encPosOffset_ = encPos_;
+}
+
+double Joint::getAngle() {
+  return ((double)encPos_) / gearRatios[index_];
 }
 

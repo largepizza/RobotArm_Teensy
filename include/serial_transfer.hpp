@@ -10,7 +10,7 @@
 #include "arm.hpp"
 
 
-#define SERIAL_TRANSFER_RATE 10
+#define SERIAL_TRANSFER_RATE 20
 
 extern rxDataStruct rxData;
 extern txDataStruct txData;
