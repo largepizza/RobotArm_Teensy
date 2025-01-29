@@ -81,6 +81,7 @@ void loop() {
 
   }
 
+  getSensors();
   control_loop();
   SerialTransfer_loop();
 

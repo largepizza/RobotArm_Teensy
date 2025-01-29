@@ -44,4 +44,7 @@ typedef struct __attribute__((packed)) txDataStruct {
   float controller_axis[6];
   int32_t encoders[7];
   float angles[6];
+  float current;
+  float temp;
+  uint8_t limit_switches[6];
 } txDataStruct;

@@ -80,7 +80,8 @@ Joint jointTrans;
 
 Joint* joint[7] = {&joint1, &joint2, &joint3, &joint4, &joint5, &jointGrip, &jointTrans};
 
-
+double inputCurrent;
+double temp;
 
 
 axisDirection_t getOppositeDir(axisDirection_t dir) {
@@ -308,7 +309,7 @@ int Joint::getSpeed() {
 }
 
 bool Joint::getLimit() {
-  switchState_ = digitalRead(sw_pin_);
+  switchState_ = !digitalRead(sw_pin_);
   return switchState_;
 }
 
@@ -320,11 +321,29 @@ int Joint::getEncPos() {
   return encPos_;
 }
 
-void Joint::zero() {
-  encPosOffset_ = encPos_;
+void Joint::zero(int offset = 0) { 
+  encPosOffset_ = encPos_ + offset;
 }
 
 double Joint::getAngle() {
   return ((double)encPos_) / gearRatios[index_];
 }
 
+
+// Sensor Functions
+void getSensors() {
+
+  //Current sense
+
+  inputCurrent = (((analogRead(PIN_CURRENT_SENSE)/1023.0*3.3)/100.0)/(0.0015));
+
+  //ERT-J1VG103FA NTC Thermistor
+  //Beta = 3380K
+  //R0 = 10kOhm
+  //T0 = 25C = 298.15 K
+  float Temp_V = analogRead(PIN_TEMP)*(3.3)/(1023);
+  float Temp_R = Temp_V/((3.3-Temp_V)/10000);
+  float Temp_K = 3380/(log(Temp_R/(10000*exp(-3380/298.15))));
+  temp = (Temp_K-273.15)*(9.0/5.0)+32; //Fahrenheit
+
+}

@@ -95,30 +95,97 @@ void control_loop() {
                 //--------------------------------------------------------------------------------
                 // Run joint 0 until encoder threshold
                 scheduler.add(std::make_shared<RunJointThreshold>(0, -128, 10)); 
+                // Wait 50ms
+                scheduler.add(std::make_shared<WaitMs>(50));
+                // Move in the opposite direction and find the limit
+                scheduler.add(std::make_shared<RunJointLimit>(0, 255));
                 // Wait 500ms
-                scheduler.add(std::make_shared<WaitMs>(500));
+                scheduler.add(std::make_shared<WaitMs>(50));
+                // Move back slowly a for 1 second
+                scheduler.add(std::make_shared<RunJointTime>(0, -80, 1000));
+                // Move to the limit again slowly
+                scheduler.add(std::make_shared<RunJointLimit>(0, 50));
+                // Wait 500ms
+                scheduler.add(std::make_shared<WaitMs>(50));
                 // Zero joint 0
                 scheduler.add(std::make_shared<ZeroJoint>(0));
                 //--------------------------------------------------------------------------------
                 // Zero joint 1
                 //--------------------------------------------------------------------------------
                 // Run joint 1 until encoder threshold
-                scheduler.add(std::make_shared<RunJointThreshold>(1, -128, 10));
-                // Wait 800ms
-                scheduler.add(std::make_shared<WaitMs>(800));
+                scheduler.add(std::make_shared<RunJointLimit>(1, -128));
+                // Wait 500ms
+                scheduler.add(std::make_shared<WaitMs>(500));
+                // Move slowly in the opposite direction for 1 second
+                scheduler.add(std::make_shared<RunJointTime>(1, 80, 1000));
+                // Move to the limit again slowly
+                scheduler.add(std::make_shared<RunJointLimit>(1, -50));
+                // Wait 50ms
+                scheduler.add(std::make_shared<WaitMs>(50));
                 // Zero joint 1
-                scheduler.add(std::make_shared<ZeroJoint>(1));
+                scheduler.add(std::make_shared<ZeroJoint>(1, -120-14));
                 //--------------------------------------------------------------------------------
                 // Zero joint 2
                 //--------------------------------------------------------------------------------
-                // Run joint 2 until encoder threshold
-                // scheduler.add(std::make_shared<RunJointThreshold>(2, 128, 10));
-                // // Wait 20ms
-                // scheduler.add(std::make_shared<WaitMs>(200));
-                // // Move slowly in the opposite direction and find the limit
-                // scheduler.add(std::make_shared<RunJointLimit>(2, -80));
-                // // Zero joint 2
-                // scheduler.add(std::make_shared<ZeroJoint>(2));
+                // Run joint 2 until limit 
+                scheduler.add(std::make_shared<RunJointLimit>(2, -128));
+                // Wait 50ms
+                scheduler.add(std::make_shared<WaitMs>(50));
+                // Move same direction for 1 second
+                scheduler.add(std::make_shared<RunJointTime>(2, -80, 1000));
+                // Move to the limit again slowly
+                scheduler.add(std::make_shared<RunJointLimit>(2, 20));
+                // Wait 50ms
+                scheduler.add(std::make_shared<WaitMs>(50));
+                // Zero joint 2
+                scheduler.add(std::make_shared<ZeroJoint>(2, -90));
+
+                //--------------------------------------------------------------------------------
+                // Zero joint 3
+                //--------------------------------------------------------------------------------
+                // Run joint 3 until threshold
+                //scheduler.add(std::make_shared<RunJointThreshold>(3, -50, 10));
+                // Wait 50ms
+                //scheduler.add(std::make_shared<WaitMs>(500));
+                // Move in the opposite direction and find the limit
+                scheduler.add(std::make_shared<RunJointLimit>(3, 60));
+                // Wait 50ms
+                scheduler.add(std::make_shared<WaitMs>(500));
+                // Move back slowly a for 1 second
+                scheduler.add(std::make_shared<RunJointTime>(3, -60, 1000));
+                // Move to the limit again slowly
+                scheduler.add(std::make_shared<RunJointLimit>(3, 40));
+                // Wait 50ms
+                scheduler.add(std::make_shared<WaitMs>(50));
+                // Zero joint 3
+                scheduler.add(std::make_shared<ZeroJoint>(3, -45));
+
+                //--------------------------------------------------------------------------------
+                // Zero joint 4
+                //--------------------------------------------------------------------------------
+                // Run joint 4 until limit
+                scheduler.add(std::make_shared<RunJointLimit>(4, 128));
+                // Wait 50ms
+                scheduler.add(std::make_shared<WaitMs>(50));
+                // Move in the opposite direction one second
+                scheduler.add(std::make_shared<RunJointTime>(4, -80, 1000));
+                // Move to the limit again slowly
+                scheduler.add(std::make_shared<RunJointLimit>(4, 50));
+                // Wait 50ms
+                scheduler.add(std::make_shared<WaitMs>(50));
+                // Zero joint 4
+                scheduler.add(std::make_shared<ZeroJoint>(4, -20+30));
+
+                //--------------------------------------------------------------------------------
+                // Zero joint 5 (Gripper)
+                //--------------------------------------------------------------------------------
+                // Run joint 5 until threshold
+                scheduler.add(std::make_shared<RunJointThreshold>(5, -255, 10));
+                // Wait 50ms
+                scheduler.add(std::make_shared<WaitMs>(50));
+                // Zero joint 5
+                scheduler.add(std::make_shared<ZeroJoint>(5, -180));
+
 
 
 

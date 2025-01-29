@@ -2,8 +2,8 @@
 
 
 
-ZeroJoint::ZeroJoint(uint8_t jointIndex)
-    : jointIndex(jointIndex) {
+ZeroJoint::ZeroJoint(uint8_t jointIndex, float offset = 0)
+    : jointIndex(jointIndex), offset(offset) {
 }
 
 void ZeroJoint::start() {
@@ -11,7 +11,11 @@ void ZeroJoint::start() {
 }
 
 bool ZeroJoint::run() {
-    joint[jointIndex]->zero();
+    // Use gear ratio to convert float angle offset to encoder ticks
+    int enc_offset = offset * gearRatios[jointIndex];
+
+    /// Zero joint
+    joint[jointIndex]->zero(enc_offset);
     return true;
 }
 

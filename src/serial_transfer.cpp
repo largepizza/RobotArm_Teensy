@@ -27,20 +27,26 @@ void SerialTransfer_loop() {
   if (millis() - t_lastTransfer >= SERIAL_TRANSFER_RATE) {
       t_lastTransfer = millis();
 
-
-      //Pack encoder data
       for (uint8_t i = 0; i < 6; i++) {
+        //Pack encoder data
         txData.encoders[i] = joint[i]->getEncPos();
-      }
-      //Pack controller data
-      for (uint8_t i = 0; i < 6; i++) {
+      
+        //Pack controller data
         txData.controller_axis[i] = rxData.controller_axis[i];
+
+        //Pack angles
+        txData.angles[i] = (float)joint[i]->getAngle();
+
+        //Pack limit switches
+        txData.limit_switches[i] = (uint8_t)joint[i]->getLimit();
+      
       }
 
-      //Pack angles
-      for (uint8_t i = 0; i < 6; i++) {
-        txData.angles[i] = (float)joint[i]->getAngle();
-      }
+      //Pack current
+      txData.current = inputCurrent;
+
+      //Pack temp
+      txData.temp = temp;
 
       uint16_t txSize = 0;
       txSize = myTransfer.txObj(txData, txSize);

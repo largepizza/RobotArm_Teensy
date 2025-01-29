@@ -6,13 +6,14 @@
 
 class ZeroJoint : public Command {
 public:
-    ZeroJoint(uint8_t jointIndex);
+    ZeroJoint(uint8_t jointIndex, float offset = 0);
     void start() override;
     bool run() override;
 
 private:
 
     uint8_t jointIndex;
+    float offset;
 
 
 };

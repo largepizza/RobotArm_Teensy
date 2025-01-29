@@ -69,7 +69,10 @@
 
 const double gearRatios[7] = {127.1, 127.1, 127.1, 65.5, 65.5, 19.5, 10.0};
 
+extern double inputCurrent;
+extern double temp;
 
+void getSensors();
 
 
 
@@ -123,7 +126,7 @@ class Joint {
         int getEncPos();
         double getAngle();
         bool getLimit();
-        void zero();
+        void zero(int offset = 0);
         axisDirection_t getDir();
         int sw_pin_;
 
