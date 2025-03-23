@@ -27,6 +27,8 @@ void SerialTransfer_loop() {
   if (millis() - t_lastTransfer >= SERIAL_TRANSFER_RATE) {
       t_lastTransfer = millis();
 
+      txData.cmdType = CMD_DATA_OUT;
+
       for (uint8_t i = 0; i < 6; i++) {
         //Pack encoder data
         txData.encoders[i] = joint[i]->getEncPos();
@@ -35,7 +37,7 @@ void SerialTransfer_loop() {
         txData.controller_axis[i] = rxData.controller_axis[i];
 
         //Pack angles
-        txData.angles[i] = (float)joint[i]->getAngle();
+        txData.angles[i] = (float)joint[i]->jointAngle;
 
         //Pack limit switches
         txData.limit_switches[i] = (uint8_t)joint[i]->getLimit();

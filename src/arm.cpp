@@ -39,6 +39,15 @@ v0.1:
                                                         
 */
 
+double joint_limits[7][2] = {
+    {-150, 180},
+    {-15, 128},
+    {-120, 120},
+    {-90, 90},
+    {-180, 180},
+    {-110, 180},
+    {-110, 110}
+};
 
 
 // Axis
@@ -162,6 +171,7 @@ void arm_init() {
   jointGrip.init(5, PIN_GRIP_SW);
   jointTrans.init(6, PIN_TRANS_SW);
 
+
   axis2.inverted = true;
   
   
@@ -252,11 +262,31 @@ void Joint::init(uint8_t index, uint8_t sw_pin) {
   index_ = index;
   sw_pin_ = sw_pin;
 
+  // Construct PI
+  pid = new PID(&jointAngle, &control, &setpoint, kp, kd, ki, DIRECT);
+
+  // Set output limits
+  pid->SetOutputLimits(-255, 255);
+  pid->SetSampleTime(10);
+
+
+
+}
+
+void Joint::setControl(bool control) {
+  if (control) {
+    pid->SetMode(AUTOMATIC);
+  }
+  else {
+    pid->SetMode(MANUAL);
+  }
 }
 
 void Joint::update() {
   int velocity3;
   int velocity4;
+
+
 
   //Update encoder position based, motor status, and switch status
   switch (index_) {
@@ -283,7 +313,7 @@ void Joint::update() {
       encPos_ -= encPosOffset_;
 
       axis[index_]->runMotor(dir_,speed_);
-      
+
       break;
   }
 
@@ -329,6 +359,24 @@ double Joint::getAngle() {
   return ((double)encPos_) / gearRatios[index_];
 }
 
+void getJointAngles() {
+  for (uint8_t i = 0; i < 7; i++) {
+    switch (i) {
+      case 2:
+        joint[i]->jointAngle = (joint[2]->getAngle() - joint[1]->getAngle());
+        break;
+      case 3:
+        joint[i]->jointAngle = (joint[3]->getAngle() - joint[2]->getAngle());
+        break;
+      default:
+        joint[i]->jointAngle = joint[i]->getAngle();
+        break;
+    }
+  }
+}
+
+
+
 
 // Sensor Functions
 void getSensors() {
@@ -346,4 +394,17 @@ void getSensors() {
   float Temp_K = 3380/(log(Temp_R/(10000*exp(-3380/298.15))));
   temp = (Temp_K-273.15)*(9.0/5.0)+32; //Fahrenheit
 
+}
+
+
+void enablePID() {
+  for (uint8_t i = 0; i < 7; i++) {
+    joint[i]->setControl(true);
+  }
+}
+
+void disablePID() {
+  for (uint8_t i = 0; i < 7; i++) {
+    joint[i]->setControl(false);
+  }
 }

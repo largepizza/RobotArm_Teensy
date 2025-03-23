@@ -1,14 +1,45 @@
 #include "control.hpp"
 
 
+configDataStruct configData;
+
 Scheduler scheduler;
 
 controlStatus_t controlStatus = CONTROL_JOINT_CONTROLLER;
 controlStatus_t last_controlStatus = CONTROL_JOINT_CONTROLLER;
 
+//Axis Limits
+//Joint 0 = {-150,180}
+//Joint 1 = {-15, 128}
+//Joint 2 = {-120, 120}
+//Joint 3 = {-90, 90}
+//Joint 4 = {-180, 180}
+//Joint 5 = {-110, 180}
+
+
+uint32_t t_pidButton;
+
 
 void control_init() {
     controlStatus = CONTROL_JOINT_CONTROLLER;
+
+
+}
+
+void joint_pid() {
+  // Joint PID control
+  for (uint8_t i = 0; i < 7; i++) {
+    joint[i]->pid->Compute();
+    if (joint[i]->pid->GetMode() == AUTOMATIC) {
+
+      joint[i]->setSpeed(abs(joint[i]->control), getOppositeDir(floatToDir(joint[i]->control)));
+
+    }
+  }
+  // Get target angles
+  for (uint8_t i = 0; i < 7; i++) {
+    joint[i]->setpoint = rxData.joint_targets[i];
+  }
 }
 
 void joint_controller() {
@@ -86,8 +117,12 @@ void control_loop() {
             case CONTROL_NONE:
                 break;
             case CONTROL_JOINT_CONTROLLER:
+                // Disable PID control
+                disablePID();
                 break;
             case CONTROL_ZERO:
+                // Disable PID control
+                disablePID();
                 // Add commands to queue
                 scheduler.clear();                                              // Clear scheduler queue
                 //--------------------------------------------------------------------------------
@@ -123,7 +158,7 @@ void control_loop() {
                 // Wait 50ms
                 scheduler.add(std::make_shared<WaitMs>(50));
                 // Zero joint 1
-                scheduler.add(std::make_shared<ZeroJoint>(1, -120-14));
+                scheduler.add(std::make_shared<ZeroJoint>(1, -120-14+10));
                 //--------------------------------------------------------------------------------
                 // Zero joint 2
                 //--------------------------------------------------------------------------------
@@ -138,7 +173,7 @@ void control_loop() {
                 // Wait 50ms
                 scheduler.add(std::make_shared<WaitMs>(50));
                 // Zero joint 2
-                scheduler.add(std::make_shared<ZeroJoint>(2, -90));
+                scheduler.add(std::make_shared<ZeroJoint>(2, -90+130-92));
 
                 //--------------------------------------------------------------------------------
                 // Zero joint 3
@@ -158,7 +193,7 @@ void control_loop() {
                 // Wait 50ms
                 scheduler.add(std::make_shared<WaitMs>(50));
                 // Zero joint 3
-                scheduler.add(std::make_shared<ZeroJoint>(3, -45));
+                scheduler.add(std::make_shared<ZeroJoint>(3, -45+130-90));
 
                 //--------------------------------------------------------------------------------
                 // Zero joint 4
@@ -192,6 +227,10 @@ void control_loop() {
                 //scheduler.add(std::make_shared<StopJoint>(0));                 // Stop joint 0
             
                 break;
+            case CONTROL_JOINT_PID:
+                // Enable PID control
+                enablePID();
+                break;
             default:
                 break;
         }
@@ -216,6 +255,10 @@ void control_loop() {
                 controlStatus = CONTROL_JOINT_CONTROLLER;
             }
             break;
+        case CONTROL_JOINT_PID:
+            joint_pid();
+
+            break;
         default:
             break;
     }
@@ -228,6 +271,19 @@ void control_loop() {
     if (rxData.controller_buttons[7] > 0) {
         controlStatus = CONTROL_ZERO;
     }
+
+    //PID control triggered by buttons[6]
+    if (rxData.controller_buttons[6] > 0 && millis() - t_pidButton > 500) {
+        t_pidButton = millis();
+
+        if (controlStatus == CONTROL_JOINT_PID) {
+            controlStatus = CONTROL_JOINT_CONTROLLER;
+        }
+        else {
+            controlStatus = CONTROL_JOINT_PID;
+        }
+    }
+    
 
 
     

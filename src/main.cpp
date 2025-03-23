@@ -80,7 +80,7 @@ void loop() {
     joint[i]->update();
 
   }
-
+  getJointAngles();
   getSensors();
   control_loop();
   SerialTransfer_loop();

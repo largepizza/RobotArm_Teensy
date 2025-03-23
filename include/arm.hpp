@@ -13,6 +13,7 @@
 #include <Servo.h>
 #include <Encoder.h>
 #include "datatypes.h"
+#include <PID_v1.h>
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -125,10 +126,27 @@ class Joint {
         int getSpeed();
         int getEncPos();
         double getAngle();
+        double getJointAngle();
         bool getLimit();
         void zero(int offset = 0);
+        void setControl(bool control);
         axisDirection_t getDir();
+        double jointAngle;
         int sw_pin_;
+
+        // PID
+        double kp = 10;
+        double ki = 20;
+        double kd = 0;
+        // Limits
+        double outMin;
+        double outMax;
+        // Controller
+        double control;
+        double setpoint;
+
+        //PID Object
+        PID* pid;
 
         private:
             uint8_t speed_;
@@ -136,6 +154,7 @@ class Joint {
             uint8_t index_;
             bool switchState_;
             double angle_;
+            
             int encPos_;
             int encPosOffset_;
 };
@@ -143,6 +162,10 @@ class Joint {
 
 
 void arm_init();
+void getJointAngles();
+void enablePID();
+void disablePID();
+
 
 axisDirection_t getOppositeDir(axisDirection_t dir);
 float dirToFloat(axisDirection_t dir);
